@@ -7,6 +7,11 @@ import java.nio.channels.ReadableByteChannel;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import javazoom.jl.decoder.JavaLayerException;
+import javazoom.jl.player.Player;
+
+import java.io.FileInputStream;
+import java.io.IOException;
 
 public class Main {
 
@@ -14,11 +19,6 @@ public class Main {
     private static final String OUT_FILE_TXT = "src\\ru\\demo\\download\\outFile1.txt";
     private static final String PATH_TO_MUSIC = "src\\music";
 
-    private static final String IN_FILE_TXT2 = "src\\ru\\demo\\download\\inFile2.txt";
-
-    private static final String OUT_FILE_TXT2 = "src\\ru\\demo\\download\\outFile2.txt";
-
-    private static final String PATH_TO_PICTURE = "src\\picture";
 
     public static void main(String[] args) {
             String Url;
@@ -34,13 +34,15 @@ public class Main {
 
                     Pattern email_pattern = Pattern.compile("\\/\\/mp3uks.ru\\/mp3\\/files\\/[\\w./\\-]+");
                     Matcher matcher = email_pattern.matcher(result);
-                    int i = 1;
-                    while (matcher.find() && i <= 5) {
+                    int i = 0;
+                    while (matcher.find() && i < 5) {
                         outFile.write("https:" + matcher.group() + "\r\n");
                         i++;
+                        System.out.println("Песня " + i + " скачана");
                     }
                 }
             } catch (IOException e) {
+                System.out.println("Ошибка");
                 e.printStackTrace();
             }
             try (BufferedReader musicFile = new BufferedReader(new FileReader(OUT_FILE_TXT))) {
@@ -60,49 +62,18 @@ public class Main {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
-        try (BufferedReader inFile = new BufferedReader(new FileReader(IN_FILE_TXT2));
-             BufferedWriter outFile = new BufferedWriter(new FileWriter(OUT_FILE_TXT2))) {
-            while ((Url = inFile.readLine()) != null) {
-                URL url = new URL(Url);
-
-                String result2;
-                try (BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(url.openStream()))) {
-                    result2 = bufferedReader.lines().collect(Collectors.joining("\n"));
-                }
-
-                Pattern email_pattern = Pattern.compile("\\/\\/static.wixstatic.com\\/media\\/632d61_[\\w./\\-\\$\\?\\_\\%\\~]+");
-                Matcher matcher = email_pattern.matcher(result2);
-                int i = 1;
-                while (matcher.find() && i <= 3) {
-                    outFile.write("https:" + matcher.group() + "\r\n");
-                    i++;
-                }
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        try (BufferedReader pictureFile = new BufferedReader(new FileReader(OUT_FILE_TXT2))) {
-            String picture;
-            int count = 1;
+        try (FileInputStream inputStream = new FileInputStream("C:\\Users\\Dell\\IdeaProjects\\Download music\\src\\music1.mp3")) {
             try {
-                while ((picture = pictureFile.readLine()) != null) {
-                    downloadUsingNIO(picture, PATH_TO_PICTURE + String.valueOf(count) + ".jpg");
-                    count++;
-                }
-                System.out.println("Работает");
-                System.out.println();
-            } catch (IOException e) {
+                Player player = new Player(inputStream);
+                player.play();
+            } catch (JavaLayerException e) {
+                System.out.println("Вы не можете прослушать музыку");
                 e.printStackTrace();
-                System.out.println("Ошибка");
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
-
     }
-
     private static void downloadUsingNIO(String strUrl, String file) throws IOException {
         URL url = new URL(strUrl);
         ReadableByteChannel byteChannel = Channels.newChannel(url.openStream());
