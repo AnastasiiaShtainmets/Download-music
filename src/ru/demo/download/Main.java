@@ -74,7 +74,7 @@ public class Main {
                 Pattern email_pattern = Pattern.compile("\\/\\/static.wixstatic.com\\/media\\/632d61_[\\w./\\-\\$\\?\\_\\%\\~]+");
                 Matcher matcher = email_pattern.matcher(result2);
                 int i = 1;
-                while (matcher.find() && i <= 4) {
+                while (matcher.find() && i <= 3) {
                     outFile.write("https:" + matcher.group() + "\r\n");
                     i++;
                 }
